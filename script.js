@@ -1,8 +1,10 @@
 const pacman = document.getElementById('pacman');
-const speed = 30; // Adjust the speed as needed
-const pacman = document.getElementById('pacman');
-pacman.style.left = '180px';
-pacman.style.top = '180px';
+pacman.style.left = "400px"
+pacman.style.top = "400px"
+const pellets = document.querySelectorAll('.pellet');
+const walls = document.querySelectorAll('.wall');
+const speed = 10;
+const pacmanRadius = 20; // Radius of Pac-Man in pixels
 
 document.addEventListener('keydown', function(event) {
     switch(event.key) {
@@ -23,20 +25,72 @@ document.addEventListener('keydown', function(event) {
 
 function moveLeft() {
     const currentLeft = parseInt(pacman.style.left) || 0;
-    pacman.style.left = `${Math.max(0, currentLeft - speed)}px`;
+    const nextLeft = currentLeft - speed;
+    if (!isCollision(nextLeft + pacmanRadius, parseInt(pacman.style.top))) {
+        pacman.style.left = nextLeft + 'px';
+        checkPelletCollision();
+    }
 }
 
 function moveRight() {
     const currentLeft = parseInt(pacman.style.left) || 0;
-    pacman.style.left = `${Math.min(360, currentLeft + speed)}px`; // Adjust the maximum value as needed
+    const nextLeft = currentLeft + speed;
+    if (!isCollision(nextLeft - pacmanRadius, parseInt(pacman.style.top))) {
+        pacman.style.left = nextLeft + 'px';
+        checkPelletCollision();
+    }
 }
 
 function moveUp() {
     const currentTop = parseInt(pacman.style.top) || 0;
-    pacman.style.top = `${Math.max(0, currentTop - speed)}px`;
+    const nextTop = currentTop - speed;
+    if (!isCollision(parseInt(pacman.style.left), nextTop + pacmanRadius)) {
+        pacman.style.top = nextTop + 'px';
+        checkPelletCollision();
+    }
 }
 
 function moveDown() {
     const currentTop = parseInt(pacman.style.top) || 0;
-    pacman.style.top = `${Math.min(360, currentTop + speed)}px`; // Adjust the maximum value as needed
+    const nextTop = currentTop + speed;
+    if (!isCollision(parseInt(pacman.style.left), nextTop - pacmanRadius)) {
+        pacman.style.top = nextTop + 'px';
+        checkPelletCollision();
+    }
+}
+
+function isCollision(x, y) {
+    // Check for collision with walls
+    for (const wall of walls) {
+        const wallRect = wall.getBoundingClientRect();
+        const pacmanRect = {
+            left: x - pacmanRadius,
+            right: x + pacmanRadius,
+            top: y - pacmanRadius,
+            bottom: y + pacmanRadius
+        };
+        if (pacmanRect.left < wallRect.right && pacmanRect.right > wallRect.left && pacmanRect.top < wallRect.bottom && pacmanRect.bottom > wallRect.top) {
+            return true;
+        }
+    }
+    
+    // Check for collision with outer perimeter of the board
+    const gameContainer = document.getElementById('game-container');
+    const containerRect = gameContainer.getBoundingClientRect();
+    if (x - pacmanRadius < containerRect.left || x - pacmanRadius > containerRect.right || y - pacmanRadius < containerRect.top || y - pacmanRadius > containerRect.bottom) {
+        return true;
+    }
+    
+    return false;
+}
+
+function checkPelletCollision() {
+    for (const pellet of pellets) {
+        const pelletRect = pellet.getBoundingClientRect();
+        const pacmanRect = pacman.getBoundingClientRect();
+        if (pacmanRect.left < pelletRect.right && pacmanRect.right > pelletRect.left && pacmanRect.top < pelletRect.bottom && pacmanRect.bottom > pelletRect.top) {
+            pellet.style.display = 'none';
+            // Add scoring logic or other actions here
+        }
+    }
 }
