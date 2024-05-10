@@ -1,9 +1,9 @@
 const pacman = document.getElementById('pacman');
-pacman.style.left = "400px"
-pacman.style.top = "400px"
 const pellets = document.querySelectorAll('.pellet');
 const walls = document.querySelectorAll('.wall');
 const speed = 10;
+const initialLeft = 180; // Initial left position of Pac-Man
+const initialTop = 180; // Initial top position of Pac-Man
 const pacmanRadius = 20; // Radius of Pac-Man in pixels
 
 document.addEventListener('keydown', function(event) {
@@ -29,6 +29,8 @@ function moveLeft() {
     if (!isCollision(nextLeft + pacmanRadius, parseInt(pacman.style.top))) {
         pacman.style.left = nextLeft + 'px';
         checkPelletCollision();
+    } else {
+        resetPacman();
     }
 }
 
@@ -38,6 +40,8 @@ function moveRight() {
     if (!isCollision(nextLeft - pacmanRadius, parseInt(pacman.style.top))) {
         pacman.style.left = nextLeft + 'px';
         checkPelletCollision();
+    } else {
+        resetPacman();
     }
 }
 
@@ -47,6 +51,8 @@ function moveUp() {
     if (!isCollision(parseInt(pacman.style.left), nextTop + pacmanRadius)) {
         pacman.style.top = nextTop + 'px';
         checkPelletCollision();
+    } else {
+        resetPacman();
     }
 }
 
@@ -56,6 +62,8 @@ function moveDown() {
     if (!isCollision(parseInt(pacman.style.left), nextTop - pacmanRadius)) {
         pacman.style.top = nextTop + 'px';
         checkPelletCollision();
+    } else {
+        resetPacman();
     }
 }
 
@@ -63,34 +71,14 @@ function isCollision(x, y) {
     // Check for collision with walls
     for (const wall of walls) {
         const wallRect = wall.getBoundingClientRect();
-        const pacmanRect = {
-            left: x - pacmanRadius,
-            right: x + pacmanRadius,
-            top: y - pacmanRadius,
-            bottom: y + pacmanRadius
-        };
-        if (pacmanRect.left < wallRect.right && pacmanRect.right > wallRect.left && pacmanRect.top < wallRect.bottom && pacmanRect.bottom > wallRect.top) {
+        if (x + pacmanRadius > wallRect.left && x - pacmanRadius < wallRect.right && y + pacmanRadius > wallRect.top && y - pacmanRadius < wallRect.bottom) {
             return true;
         }
     }
-    
-    // Check for collision with outer perimeter of the board
-    const gameContainer = document.getElementById('game-container');
-    const containerRect = gameContainer.getBoundingClientRect();
-    if (x - pacmanRadius < containerRect.left || x - pacmanRadius > containerRect.right || y - pacmanRadius < containerRect.top || y - pacmanRadius > containerRect.bottom) {
-        return true;
-    }
-    
     return false;
 }
 
-function checkPelletCollision() {
-    for (const pellet of pellets) {
-        const pelletRect = pellet.getBoundingClientRect();
-        const pacmanRect = pacman.getBoundingClientRect();
-        if (pacmanRect.left < pelletRect.right && pacmanRect.right > pelletRect.left && pacmanRect.top < pelletRect.bottom && pacmanRect.bottom > pelletRect.top) {
-            pellet.style.display = 'none';
-            // Add scoring logic or other actions here
-        }
-    }
+function resetPacman() {
+    pacman.style.left = initialLeft + '0 px';
+    pacman.style.top = initialTop + '0 px';
 }
